@@ -71,7 +71,31 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         guard let imageAnchor = anchor as? ARImageAnchor else { return }
         
-        print(#function, "Нашли картинку \(imageAnchor.referenceImage.name)")
+        switch anchor {
+        case let imageAnchor as ARImageAnchor:
+            nodeAdded(node, for: imageAnchor)
+        case let planeAnchor as ARPlaneAnchor:
+            nodeAdded(node, for: planeAnchor)
+        default:
+            print("Нашли якорь, но это не плоскость и не картинка")
+        }
+    }
+    
+    func nodeAdded(_ node: SCNNode, for imageAnchor: ARImageAnchor) {
+        let referenceImage = imageAnchor.referenceImage
+        
+        let plane = SCNPlane(width: referenceImage.physicalSize.width, height: referenceImage.physicalSize.height)
+        
+        plane.firstMaterial?.diffuse.contents = UIColor.blue
+        
+        let planeNode = SCNNode(geometry: plane)
+        planeNode.opacity = 0.25
+        
+        node.addChildNode(planeNode)
+    }
+    
+    func nodeAdded(_ node: SCNNode, for planeAnchor: ARPlaneAnchor) {
+        
     }
     
     func session(_ session: ARSession, didFailWithError error: Error) {
